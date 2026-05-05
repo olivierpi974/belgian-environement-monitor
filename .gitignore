@@ -1,7 +1,7 @@
 #secret & config
 .env
 *.env
-link.md #private documentation
+link.md
 
 #raw data
 data/raw
@@ -10,13 +10,14 @@ data/bronze
 *.parquet
 *.xlsx
 *.zip
-'User friendly .csv files'/ #files from the database
+'User friendly .csv files'/
 
 #environnement
 .uv/
 __pycache__/
 *.pyc
 .python-version
+.venv
 
 #IDE
 .vscode/
