@@ -1,0 +1,37 @@
+#secret & config
+.env
+*.env
+
+#raw data
+data/raw
+data/bronze
+*.csv
+*.parquet
+*.xlsx
+*.zip
+
+#environnement
+.uv/
+__pycache__/
+*.pyc
+.python-version
+
+#IDE
+.vscode/
+.idea/
+
+
+#OS
+.DS_Store
+Thumbs.db
+
+#PostgreSQL
+*.sql.backup
+*.dump
+*.pg_dump
+pgdata/
+.pgpass
+
+#log & monitoring
+logs/
+*.log
