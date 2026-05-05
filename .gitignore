@@ -9,6 +9,7 @@ data/bronze
 *.parquet
 *.xlsx
 *.zip
+'User friendly .csv files'/ #files from the database
 
 #environnement
 .uv/
@@ -24,6 +25,8 @@ __pycache__/
 #OS
 .DS_Store
 Thumbs.db
+*.Zone.Identifier
+*:Zone.Identifier
 
 #PostgreSQL
 *.sql.backup
