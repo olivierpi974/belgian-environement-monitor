@@ -1,6 +1,7 @@
 #secret & config
 .env
 *.env
+link.md #private documentation
 
 #raw data
 data/raw
