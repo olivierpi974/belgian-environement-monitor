@@ -1,0 +1,1 @@
+CREATE USER olivier_picaud WITH PASSWORD 'C02BE'
