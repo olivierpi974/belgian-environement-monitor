@@ -1,1 +1,1 @@
-CREATE USER olivier_picaud WITH PASSWORD 'C02BE'
+CREATE USER co2_user WITH PASSWORD 'example'

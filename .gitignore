@@ -16,7 +16,6 @@ data/bronze
 .uv/
 __pycache__/
 *.pyc
-.python-version
 .venv
 
 #IDE
