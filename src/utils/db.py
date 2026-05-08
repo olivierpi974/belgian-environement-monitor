@@ -1,11 +1,14 @@
 import psycopg2
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 import os
+import pandas as pd
 
-#loading of .env
+
 def connect_to_db():
-    load_dotenv() #loading of the .env
+
+    #loading of the .env
+    load_dotenv()
 
     #paramters
     DB_USER=os.getenv('DB_USER')
@@ -35,3 +38,27 @@ def connect_to_db():
         print("connection sucessful")
 
     return engine
+
+
+def get_table(query,engine):
+
+    df = pd.read_sql(query, con=engine)
+
+    return df
+
+def load_table(df,table_name,schema,engine):
+
+    sql_state=text(f"TRUNCATE TABLE {schema}.{table_name}")
+
+    with engine.connect()as conn:
+        conn.execute(sql_state)
+        conn.commit()
+    df.to_sql(table_name,con=engine,schema=schema, if_exists='append',index=False, chunksize=1000)
+
+    print( f"load of {schema}.{table_name} done")
+
+def log_monitoring(log_dic,table_name,schema, engine):
+    df=pd.DataFrame([log_dic])
+    load_table(df,table_name,schema, engine)
+
+    print("monitoring is done")
