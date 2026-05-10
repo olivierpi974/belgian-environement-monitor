@@ -48,7 +48,7 @@ def get_table(query,engine):
 
 def load_table(df,table_name,schema,engine):
 
-    sql_state=text(f"TRUNCATE TABLE {schema}.{table_name}")
+    sql_state=text(f"TRUNCATE TABLE {schema}.{table_name};")
 
     with engine.connect()as conn:
         conn.execute(sql_state)
