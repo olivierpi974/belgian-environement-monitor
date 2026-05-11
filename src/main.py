@@ -13,6 +13,9 @@ f6_1_path="data/raw/F6_1_IED_Installations.csv"
 #instantication of engine
 engine=connect_to_db()
 
+#######################
+# BRONZE layer        #
+#######################
 # #loading to bronze
 # load_bronze(f1_path,engine)
 # load_bronze(f5_path,engine)
@@ -22,6 +25,10 @@ engine=connect_to_db()
 #     load_bronze(f6_1_path, engine)
 # except Exception as e:
 #     print(f"Erreur F6_1 : {e}")
+
+#######################
+# Silver_Tranformation#
+#######################
 
 #getting_table
 query_f1_4="""SELECT * FROM bronze.f1_4_air_releases_facilities
@@ -33,6 +40,7 @@ WHERE "countryName"='Belgium' """
 f1_4_silver=get_table(query_f1_4,engine=engine)
 f5_2_silver=get_table(query_f5_2,engine=engine)
 
+
 #transforming f1_4_silver
 col_to_keep=['reportingYear', 'EPRTR_SectorCode',
        'EPRTR_SectorName', 'FacilityInspireId',
@@ -40,14 +48,15 @@ col_to_keep=['reportingYear', 'EPRTR_SectorCode',
        'Releases']
 
 
-start_trans=time.perf_counter()
-f1_4_emission, monitoring_dict= transform_data_f1_4(f1_4_silver,col_to_keep)
+start_trans=time.perf_counter() #monitoring
+f1_4_emission, f1_4_monitoring_dict= transform_data_f1_4(f1_4_silver,col_to_keep)
 
-elapsed= time.perf_counter()-start_trans
-monitoring_dict['duration_sec'] = round(elapsed, 2)
-monitoring_dict['date_transform'] = datetime.now()
+elapsed= time.perf_counter()-start_trans #monitoring
+f1_4_monitoring_dict['duration_sec'] = round(elapsed, 2)#monitoring
+f1_4_monitoring_dict['date_transform'] = datetime.now()#monitoring
 
 #transforming f5_2_silver
+
 col_f5_2_to_keep=['reportingYear', 'LCPInspireId',
        'installationPartName',
        'City_Of_Facility', 'Longitude',
@@ -60,15 +69,33 @@ col_rename=['installationpartname','city_of_facility']
 col_pivot='featureType'
 value_pivot='featureValue'
 
-f5_2_energy_emission,f5_2_monitoring_dict=transform_data_f5_2(f5_2_silver,col=col_f5_2_to_keep,col_filter=col_filter,col_combustible=combustible,index=index,col_pivot=col_pivot,value_pivot=value_pivot,normalize_col=col_rename)
-print(f5_2_energy_emission)
-print(f5_2_monitoring_dict)
-# #loading transformed table to postgresql server
+start_trans=time.perf_counter() #monitoring
+
+f5_2_energy_emission,f5_2_monitoring_dict=transform_data_f5_2(f5_2_silver,
+                                                              col=col_f5_2_to_keep,
+                                                              col_filter=col_filter,
+                                                              col_combustible=combustible,
+                                                              index=index,
+                                                              col_pivot=col_pivot,
+                                                              value_pivot=value_pivot,
+                                                              normalize_col=col_rename)
+
+elapsed= time.perf_counter()-start_trans #monitoring
+f5_2_monitoring_dict['duration_sec'] = round(elapsed, 2)#monitoring
+f5_2_monitoring_dict['date_transform'] = datetime.now()#monitoring
+
+# #################################################
+# #loading transformed table to postgresql server #
+###################################################
+
 # load_table(f1_4_emission,table_name="f1_emission", schema="silver",engine=engine)
+load_table(f5_2_energy_emission,"f5_energy",schema="silver",engine=engine)
 
-# #loading monitoring table to postgresql server
-# log_monitoring(monitoring_dict,"silver_monitoring", "monitoring", engine=engine)
 
-#getting_table
 
-#transforming F5_2
+# #################################################
+# monitoring                                      #
+###################################################
+
+log_monitoring(f1_4_monitoring_dict,"silver_monitoring", "monitoring", engine=engine)
+log_monitoring(f5_2_monitoring_dict,"silver_monitoring","monitoring",engine=engine)

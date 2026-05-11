@@ -46,19 +46,21 @@ def get_table(query,engine):
 
     return df
 
-def load_table(df,table_name,schema,engine):
+def load_table(df,table_name,schema,engine,truncate=True):
 
-    sql_state=text(f"TRUNCATE TABLE {schema}.{table_name};")
+    if truncate==True: 
+        sql_state=text(f"TRUNCATE TABLE {schema}.{table_name};")
 
-    with engine.connect()as conn:
-        conn.execute(sql_state)
-        conn.commit()
+        with engine.connect()as conn:
+            conn.execute(sql_state)
+            conn.commit()
+
+        
     df.to_sql(table_name,con=engine,schema=schema, if_exists='append',index=False, chunksize=1000)
-
     print( f"load of {schema}.{table_name} done")
 
 def log_monitoring(log_dic,table_name,schema, engine):
     df=pd.DataFrame([log_dic])
-    load_table(df,table_name,schema, engine)
+    load_table(df,table_name,schema, engine,truncate=False)
 
     print("monitoring is done")

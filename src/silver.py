@@ -42,7 +42,13 @@ def transform_data_f5_2(df,col, col_filter, col_combustible, index, col_pivot, v
     df_transformed.rename(str.lower,axis='columns',inplace=True)
    
     df_transformed[normalize_col]=df_transformed[normalize_col].map(normalize_text)
+    
 
+    #modification of col_combustible to transform  unit in combustible columns
+    col_combustible=[combustible.lower() for combustible in col_combustible]
+    # TJ → GWh (facteur IPCC : 1 TJ = 0.2778 GWh)
+    df_transformed[col_combustible] = df_transformed[col_combustible] * 0.2778
+    
     nb_null_in=df.isnull().sum().sum()
     nb_null_out=df_transformed.isnull().sum().sum()
     nb_rows_out=len(df_transformed)
