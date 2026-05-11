@@ -64,8 +64,29 @@ def transform_data_f5_2(df,col, col_filter, col_combustible, index, col_pivot, v
     }
     return (df_transformed, monitoring_dic)
 
-def load_table(df, table_name, engine,schema):
+def transform_f6(df,f6_col_to_keep,col_to_normalize,col_fill_na):
+    
+    df_transformed=df[f6_col_to_keep].copy()
+    df_transformed=df_transformed.drop_duplicates()
+    df_transformed=df_transformed.rename(str.lower,axis='columns')
+    df_transformed[col_to_normalize]= df_transformed[col_to_normalize].map(normalize_text)
+    df_transformed=df_transformed.fillna({col_fill_na:'unknown'})
+    
+    nb_null_in=df.isnull().sum().sum()
+    nb_null_out=df_transformed.isnull().sum().sum()
+    nb_rows_out=len(df_transformed)
+    
+    nb_col_out=len(df_transformed.columns)
+    
+    monitoring_dic={
+    'table_name': 'silver_f6_1',
+    'nb_rows_out':nb_rows_out,
+    'nb_null_in': nb_null_in,
+    'nb_null_out': nb_null_out,
+    'nb_col_out': nb_col_out,
+    }
+    return (df_transformed,monitoring_dic)
 
-    return df
+
 
 

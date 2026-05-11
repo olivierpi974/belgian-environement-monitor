@@ -36,3 +36,12 @@ othersolidfuels DOUBLE PRECISION,
 peat DOUBLE PRECISION,
 PRIMARY KEY (lcpinspireid, reportingyear)
 );
+
+CREATE TABLE IF NOT EXISTS silver.f6_installation
+(reportingyear INT,
+parent_facilityinspireid VARCHAR(120),
+installationinspireid VARCHAR(120),
+city_of_facility VARCHAR(50),
+longitude NUMERIC(15,6),
+latitude NUMERIC(15,6),
+PRIMARY KEY(installationinspireid,reportingyear))

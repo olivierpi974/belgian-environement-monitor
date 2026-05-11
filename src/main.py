@@ -1,7 +1,7 @@
 from utils.db import connect_to_db
 from bronze import load_bronze
 from utils.db import get_table, load_table,log_monitoring
-from silver import transform_data_f1_4,transform_data_f5_2
+from silver import transform_data_f1_4,transform_data_f5_2,transform_f6
 import time
 from datetime import datetime
 
@@ -14,7 +14,7 @@ f6_1_path="data/raw/F6_1_IED_Installations.csv"
 engine=connect_to_db()
 
 #######################
-# BRONZE layer        #
+# BRONZE layer loading#
 #######################
 # #loading to bronze
 # load_bronze(f1_path,engine)
@@ -37,9 +37,13 @@ query_f1_4="""SELECT * FROM bronze.f1_4_air_releases_facilities
 query_f5_2= """SELECT * FROM bronze.f5_2_lcp_energy_emissions 
 WHERE "countryName"='Belgium' """
 
+query_f6_1="""SELECT * FROM bronze.f6_1_ied_installations
+WHERE "CountryName"='Belgium' AND "installationStatus"='functional'
+"""
+
 f1_4_silver=get_table(query_f1_4,engine=engine)
 f5_2_silver=get_table(query_f5_2,engine=engine)
-
+f6_1_silver=get_table(query_f6_1,engine=engine)
 
 #transforming f1_4_silver
 col_to_keep=['reportingYear', 'EPRTR_SectorCode',
@@ -84,11 +88,26 @@ elapsed= time.perf_counter()-start_trans #monitoring
 f5_2_monitoring_dict['duration_sec'] = round(elapsed, 2)#monitoring
 f5_2_monitoring_dict['date_transform'] = datetime.now()#monitoring
 
+#transrforming f6_1_installation
+f6_col_to_keep=['reportingYear',
+       'parent_facilityInspireId',
+       'InstallationInspireId',
+       'City_of_Facility',
+       'Longitude', 'Latitude']
+
+col_to_normalize='City_of_Facility'
+col_to_fill_na='city_of_facility'
+f6_1_installation, f6_1_monitoring_dict=transform_f6(
+                            f6_1_silver,
+                            f6_col_to_keep,
+                            col_to_normalize,
+                            col_to_fill_na)
+
 # #################################################
-# #loading transformed table to postgresql server #
+# loading transformed table to postgresql server #
 ###################################################
 
-# load_table(f1_4_emission,table_name="f1_emission", schema="silver",engine=engine)
+load_table(f1_4_emission,table_name="f1_emission", schema="silver",engine=engine)
 load_table(f5_2_energy_emission,"f5_energy",schema="silver",engine=engine)
 
 
