@@ -13,9 +13,9 @@ emitted_co2_kg NUMERIC(15,4));
 CREATE TABLE IF NOT EXISTS monitoring.silver_monitoring
 (table_name VARCHAR(50),
 nb_rows_out INT,
-nb_null_in SMALLINT,
-nb_null_out SMALLINT,
-nb_col_out SMALLINT, 
+nb_null_in INT,
+nb_null_out INT,
+nb_col_out INT, 
 duration_sec NUMERIC (6,2),
 date_transform TIMESTAMP);
 

@@ -31,6 +31,7 @@ engine=connect_to_db()
 #######################
 
 #getting_table
+#----------------------------------------------------------------
 query_f1_4="""SELECT * FROM bronze.f1_4_air_releases_facilities
     WHERE "countryName"  = 'Belgium' AND "Pollutant"='Carbon dioxide (CO2)' AND "reportingYear" BETWEEN 2016 AND 2024
 """
@@ -46,6 +47,7 @@ f5_2_silver=get_table(query_f5_2,engine=engine)
 f6_1_silver=get_table(query_f6_1,engine=engine)
 
 #transforming f1_4_silver
+#---------------------------------------------------------------------
 col_to_keep=['reportingYear', 'EPRTR_SectorCode',
        'EPRTR_SectorName', 'FacilityInspireId',
        'facilityName', 'city', 'Longitude', 'Latitude',
@@ -60,7 +62,7 @@ f1_4_monitoring_dict['duration_sec'] = round(elapsed, 2)#monitoring
 f1_4_monitoring_dict['date_transform'] = datetime.now()#monitoring
 
 #transforming f5_2_silver
-
+#---------------------------------------------------------------------
 col_f5_2_to_keep=['reportingYear', 'LCPInspireId',
        'installationPartName',
        'City_Of_Facility', 'Longitude',
@@ -95,7 +97,7 @@ f6_col_to_keep=['reportingYear',
        'City_of_Facility',
        'Longitude', 'Latitude']
 
-col_to_normalize='City_of_Facility'
+col_to_normalize='city_of_facility'
 col_to_fill_na='city_of_facility'
 f6_1_installation, f6_1_monitoring_dict=transform_f6(
                             f6_1_silver,
@@ -109,7 +111,7 @@ f6_1_installation, f6_1_monitoring_dict=transform_f6(
 
 load_table(f1_4_emission,table_name="f1_emission", schema="silver",engine=engine)
 load_table(f5_2_energy_emission,"f5_energy",schema="silver",engine=engine)
-
+load_table(f6_1_installation,"f6_installation",schema="silver",engine=engine)
 
 
 # #################################################
@@ -118,3 +120,4 @@ load_table(f5_2_energy_emission,"f5_energy",schema="silver",engine=engine)
 
 log_monitoring(f1_4_monitoring_dict,"silver_monitoring", "monitoring", engine=engine)
 log_monitoring(f5_2_monitoring_dict,"silver_monitoring","monitoring",engine=engine)
+log_monitoring(f6_1_monitoring_dict,"silver_monitoring","monitoring",engine=engine)
