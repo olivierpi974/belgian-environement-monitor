@@ -16,16 +16,18 @@ engine=connect_to_db()
 #######################
 # BRONZE layer loading#
 #######################
-# #loading to bronze
-# load_bronze(f1_path,engine)
-# load_bronze(f5_path,engine)
-
-# print("starting F6_1...")
-# try:
-#     load_bronze(f6_1_path, engine)
-# except Exception as e:
-#     print(f"Erreur F6_1 : {e}")
-
+#loading to bronze
+print("starting loading of table")
+load_bronze(f1_path,engine)
+print("load of table f1_4 done")
+load_bronze(f5_path,engine)
+print("load of table f5_2 done")
+print("starting F6_1...")
+try:
+    load_bronze(f6_1_path, engine)
+except Exception as e:
+    print(f"Erreur F6_1 : {e}")
+print("Load of F6_1 done")
 #######################
 # Silver_Tranformation#
 #######################
@@ -33,7 +35,7 @@ engine=connect_to_db()
 #getting_table
 #----------------------------------------------------------------
 query_f1_4="""SELECT * FROM bronze.f1_4_air_releases_facilities
-    WHERE "countryName"  = 'Belgium' AND "Pollutant"='Carbon dioxide (CO2)' AND "reportingYear" BETWEEN 2016 AND 2024
+    WHERE "countryName"  = 'Belgium' AND "reportingYear" BETWEEN 2016 AND 2024
 """
 query_f5_2= """SELECT * FROM bronze.f5_2_lcp_energy_emissions 
 WHERE "countryName"='Belgium' """
@@ -46,13 +48,13 @@ f1_4_silver=get_table(query_f1_4,engine=engine)
 f5_2_silver=get_table(query_f5_2,engine=engine)
 f6_1_silver=get_table(query_f6_1,engine=engine)
 
+
 #transforming f1_4_silver
 #---------------------------------------------------------------------
 col_to_keep=['reportingYear', 'EPRTR_SectorCode',
        'EPRTR_SectorName', 'FacilityInspireId',
-       'facilityName', 'city', 'Longitude', 'Latitude',
+       'facilityName', 'city', 'Longitude', 'Latitude', 'Pollutant',
        'Releases']
-
 
 start_trans=time.perf_counter() #monitoring
 f1_4_emission, f1_4_monitoring_dict= transform_data_f1_4(f1_4_silver,col_to_keep)

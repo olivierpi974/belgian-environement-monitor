@@ -9,7 +9,7 @@ def transform_data_f1_4(df,col):
 
     df_transformed=df[col].copy()
     nb_null_in= df_transformed.isnull().sum().sum()
-    df_transformed=df_transformed.rename(str.lower,axis='columns').rename(columns={'releases':"emitted_co2_kg"})
+    df_transformed=df_transformed.rename(str.lower,axis='columns').rename(columns={'releases':"emitted_pollutant_kg"})
 
 
     df_transformed=df_transformed.fillna(value={'eprtr_sectorname':'unknown','city':'unknown'})

@@ -47,15 +47,15 @@ def get_table(query,engine):
     return df
 
 def load_table(df,table_name,schema,engine,truncate=True):
-
+   
     if truncate==True: 
-        sql_state=text(f"TRUNCATE TABLE {schema}.{table_name};")
+            sql_state=text(f"TRUNCATE TABLE {schema}.{table_name};")
 
-        with engine.connect()as conn:
-            conn.execute(sql_state)
-            conn.commit()
+            with engine.connect()as conn:
+                conn.execute(sql_state)
+                conn.commit()
 
-        
+            
     df.to_sql(table_name,con=engine,schema=schema, if_exists='append',index=False, chunksize=1000)
     print( f"load of {schema}.{table_name} done")
 
