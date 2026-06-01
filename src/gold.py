@@ -8,17 +8,24 @@ dim_site_col= ['facilityinspireid',	'facilityname',	'city'	,'longitude',	'latitu
 fact_emission_col=['reportingyear', 'eprtr_sectorcode', 'fk_site_id','fk_pollutant_id',
        'emitted_pollutant_tons']
 
-def dim_date():
+def create_dim_date():
     """this function returns a dataframe containing the dates
      between 2007 to 2024  """
     df=pd.DataFrame({'year':range(2007,2025)})
     
     df['decade']=(df['year']//10)*10
-   
-    return df
+
+    nb_rows_out=len(df)
+    nb_col_out=len(df.columns)
+
+    monitoring_dict={'table_name': 'dim_date',
+    'nb_rows_out':nb_rows_out,
+    'nb_col_out': nb_col_out,
+    }
+    return df,monitoring_dict
 
 
-def dim_pollutant(df):
+def create_dim_pollutant(df):
     """this function returns a dataframe containing
     the list of pollutants on e-prtr database
     df: should be the dataframe coming from the silver layer
@@ -28,23 +35,47 @@ def dim_pollutant(df):
     df=df[dim_pollutant_col].drop_duplicates().reset_index(drop=True)
     df['pollutant_id']=df.index +1
     mapping_id= df.set_index('pollutant')['pollutant_id'].to_dict()
-    return df,mapping_id 
+    
+    nb_rows_out=len(df)
+    nb_col_out=len(df.columns)
+
+    monitoring_dict={'table_name': 'dim_pollutant',
+    'nb_rows_out':nb_rows_out,
+    'nb_col_out': nb_col_out,
+    }
+    return df,mapping_id, monitoring_dict
  
-def dim_sector(df):
+def create_dim_sector(df):
     
     df= df[dim_sector_col]
     df=df.drop_duplicates()
     df=df.reset_index(drop=True)
     
-    return df
+    nb_rows_out=len(df)
+    nb_col_out=len(df.columns)
 
-def dim_site(df):
+    monitoring_dict={'table_name': 'dim_sector',
+    'nb_rows_out':nb_rows_out,
+    'nb_col_out': nb_col_out,
+    }
+    return df,monitoring_dict
+
+def create_dim_site(df):
     df=df[dim_site_col].copy()
     df['site_id']=df.index + 1
-    mapping_key=df.setindex('facilityinspireid')['side_id'].to_dict()
-    return df,mapping_key
+    mapping_key=df.set_index('facilityinspireid')['site_id'].to_dict()
+    
+    nb_rows_out=len(df)
+    nb_col_out=len(df.columns)
 
-def fact_emission_air(df,mapping_site_id, mapping_pollutant_id):
+    monitoring_dict={'table_name': 'dim_site',
+    'nb_rows_out':nb_rows_out,
+    'nb_col_out': nb_col_out,
+    }
+    
+    return df,mapping_key,monitoring_dict
+
+def create_fact_emission_air(df,mapping_site_id, mapping_pollutant_id):
     
     df.rename(columns={'reportingyear':'year'},inplace=True)
         
@@ -53,5 +84,12 @@ def fact_emission_air(df,mapping_site_id, mapping_pollutant_id):
     df['fk_site_id']= df['facilityInspireid'].map(mapping_site_id)
     df['fk_pollutant_id']=df['pollutant'].map(mapping_pollutant_id)     
     df=df[fact_emission_col]
-    
-    return df 
+
+    nb_rows_out=len(df)
+    nb_col_out=len(df.columns)
+
+    monitoring_dict={'table_name': 'fact_emission_air',
+    'nb_rows_out':nb_rows_out,
+    'nb_col_out': nb_col_out,
+    } 
+    return df, monitoring_dict
