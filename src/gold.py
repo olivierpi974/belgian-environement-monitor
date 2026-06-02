@@ -66,12 +66,14 @@ def create_dim_site(df):
     mapping_key=df.set_index('facilityinspireid')['site_id'].to_dict()
     
     nb_rows_out=len(df)
-    nb_col_out=len(df.columns)
-
+    nb_null= df['facilityinspireid'].isnull().sum()
+    nb_duplicate=df.duplicated(subset=['facilityinspireid']).sum()
+    
     monitoring_dict={'table_name': 'dim_site',
     'nb_rows_out':nb_rows_out,
-    'nb_col_out': nb_col_out,
-    }
+    'nb_duplicate':nb_duplicate,
+    'nb_null':nb_null
+        }
     
     return df,mapping_key,monitoring_dict
 
