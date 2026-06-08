@@ -16,11 +16,10 @@ def create_dim_date():
     df['decade']=(df['year']//10)*10
 
     nb_rows_out=len(df)
-    nb_col_out=len(df.columns)
+
 
     monitoring_dict={'table_name': 'dim_date',
     'nb_rows_out':nb_rows_out,
-    'nb_col_out': nb_col_out,
     }
     return df,monitoring_dict
 
@@ -37,12 +36,13 @@ def create_dim_pollutant(df):
     mapping_id= df.set_index('pollutant')['pollutant_id'].to_dict()
     
     nb_rows_out=len(df)
-    nb_col_out=len(df.columns)
-
+    nb_duplicates=df.duplicated(subset=['pollutant']).sum()
+    nb_null= df['pollutant'].isnull().sum()
+    
     monitoring_dict={'table_name': 'dim_pollutant',
     'nb_rows_out':nb_rows_out,
-    'nb_col_out': nb_col_out,
-    }
+    'nb_duplicates':nb_duplicates,
+    'nb_null':nb_null}
     return df,mapping_id, monitoring_dict
  
 def create_dim_sector(df):
@@ -52,12 +52,14 @@ def create_dim_sector(df):
     df=df.reset_index(drop=True)
     
     nb_rows_out=len(df)
-    nb_col_out=len(df.columns)
+    nb_duplicates=df.duplicated(subset=['eprtr_sectorcode']).sum()
+    nb_null=df['eprtr_sectorcode'].isnull().sum()
 
     monitoring_dict={'table_name': 'dim_sector',
     'nb_rows_out':nb_rows_out,
-    'nb_col_out': nb_col_out,
-    }
+    'nb_duplicates':nb_duplicates,
+    'nb_null':nb_null}
+    
     return df,monitoring_dict
 
 def create_dim_site(df):
@@ -67,11 +69,11 @@ def create_dim_site(df):
     
     nb_rows_out=len(df)
     nb_null= df['facilityinspireid'].isnull().sum()
-    nb_duplicate=df.duplicated(subset=['facilityinspireid']).sum()
+    nb_duplicates=df.duplicated(subset=['facilityinspireid']).sum()
     
     monitoring_dict={'table_name': 'dim_site',
+    'nb_duplicates':nb_duplicates,
     'nb_rows_out':nb_rows_out,
-    'nb_duplicate':nb_duplicate,
     'nb_null':nb_null
         }
     
@@ -81,17 +83,25 @@ def create_fact_emission_air(df,mapping_site_id, mapping_pollutant_id):
     
     df.rename(columns={'reportingyear':'year'},inplace=True)
         
-    df['emitted_pollutant_kg']=df['emitted_pollutant_kg']//1000
+    df['emitted_pollutant_kg']=df['emitted_pollutant_kg']/1000
     df.rename(columns={'emitted_pollutant_kg':'emitted_pollutant_tons'}, inplace=True)
     df['fk_site_id']= df['facilityInspireid'].map(mapping_site_id)
     df['fk_pollutant_id']=df['pollutant'].map(mapping_pollutant_id)     
     df=df[fact_emission_col]
 
     nb_rows_out=len(df)
-    nb_col_out=len(df.columns)
-
+    nb_duplicates=df.duplicated(subset=['year', 'fk_site_id','fk_pollutant_id']).sum()
+    year_null=df['year'].isnull().sum()
+    sector_null=df['eprtr_sectorcode'].isnull().sum()
+    site_null=df['fk_site_id'].isnull().sum()
+    pollutant_null=df['fk_pollutant_id'].isnull().sum()
+    
     monitoring_dict={'table_name': 'fact_emission_air',
     'nb_rows_out':nb_rows_out,
-    'nb_col_out': nb_col_out,
+    'nb_duplicates':nb_duplicates,
+    'nb_year_null':year_null,
+    'nb_sector_null':sector_null,
+    'nb_site_null':site_null,
+    'nb_pollutant_null':pollutant_null,
     } 
     return df, monitoring_dict
