@@ -59,8 +59,8 @@ def load_table(df,table_name,schema,engine,truncate=True):
     df.to_sql(table_name,con=engine,schema=schema, if_exists='append',index=False, chunksize=1000)
     print( f"load of {schema}.{table_name} done")
 
-def log_monitoring(log_dic,table_name,schema, engine):
-    df=pd.DataFrame([log_dic])
-    load_table(df,table_name,schema, engine,truncate=False)
+def log_monitoring(df,table_name,schema, engine):
+    
+    load_table(df,table_name,schema, engine,truncate=True)
 
     print("monitoring is done")

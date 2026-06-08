@@ -5,6 +5,7 @@ from silver import transform_data_f1_4,transform_data_f5_2,transform_f6
 import time
 from datetime import datetime
 from gold import create_dim_date,create_dim_pollutant,create_dim_sector,create_dim_site,create_fact_emission_air
+import pandas as pd
 #path to csv
 f1_path = "data/raw/F1_4_Air_Releases_Facilities.csv"
 f5_path = "data/raw/F5_2_LCP_Energy_Emissions.csv"
@@ -93,6 +94,7 @@ f5_2_monitoring_dict['duration_sec'] = round(elapsed, 2)#monitoring
 f5_2_monitoring_dict['date_transform'] = datetime.now()#monitoring
 
 #transrforming f6_1_installation
+start_trans=time.perf_counter() #monitoring
 f6_col_to_keep=['reportingYear',
        'parent_facilityInspireId',
        'InstallationInspireId',
@@ -107,6 +109,15 @@ f6_1_installation, f6_1_monitoring_dict=transform_f6(
                             col_to_normalize,
                             col_to_fill_na)
 
+elapsed= time.perf_counter()-start_trans #monitoring
+f6_1_monitoring_dict['duration_sec'] = round(elapsed, 2)#monitoring
+f6_1_monitoring_dict['date_transform'] = datetime.now()#monitoring
+
+#creating monitoring tables
+silver_monitoring=pd.concat([pd.DataFrame([f1_4_monitoring_dict]),
+pd.DataFrame([f5_2_monitoring_dict]),
+pd.DataFrame([f6_1_monitoring_dict])])
+
 #######################
 # Gold_layer operation#
 #######################
@@ -115,16 +126,49 @@ f6_1_installation, f6_1_monitoring_dict=transform_f6(
 query_silver_table=""" SELECT * FROM silver.f1_4_emission""" 
 gold_f1_4=get_table(query_silver_table,engine)
 
+
+
+#create dim date
 start_create=time.perf_counter()
-
-#creating dimensions tables
 dim_date, date_monitoring= create_dim_date()
-dim_pollutant,mapping_pollutant,pollutant_monitoring= create_dim_pollutant(gold_f1_4) 
-dim_site,mapping_site, site_monitoring= create_dim_site(gold_f1_4)
-dim_sector, sector_monitoring= create_dim_sector(gold_f1_4)
-fact_emission_air, fact_air_monitoring= create_fact_emission_air(gold_f1_4,mapping_site,mapping_pollutant)
-
 elapsed=time.perf_counter() - start_create
+date_monitoring['duration_sec']=elapsed
+date_monitoring['date_transform'] = datetime.now()
+
+#create dim_pollutant
+start_create=time.perf_counter()
+dim_pollutant,mapping_pollutant,pollutant_monitoring= create_dim_pollutant(gold_f1_4) 
+elapsed=time.perf_counter() - start_create
+pollutant_monitoring['duration_sec']=elapsed
+pollutant_monitoring['date_transform'] = datetime.now()
+
+#create dim_site
+start_create=time.perf_counter()
+dim_site,mapping_site, site_monitoring= create_dim_site(gold_f1_4)
+elapsed=time.perf_counter() - start_create
+site_monitoring['duration_sec']=elapsed
+site_monitoring['date_transform'] = datetime.now()
+
+#create dim_sector
+start_create=time.perf_counter()
+dim_sector, sector_monitoring= create_dim_sector(gold_f1_4)
+elapsed=time.perf_counter() - start_create
+sector_monitoring['duration_sec']=elapsed
+sector_monitoring['date_transform'] = datetime.now()
+
+#create fact_emission_air
+start_create=time.perf_counter()
+fact_emission_air, fact_air_monitoring= create_fact_emission_air(gold_f1_4,mapping_site,mapping_pollutant)
+elapsed=time.perf_counter() - start_create
+fact_air_monitoring['duration_sec']=elapsed
+fact_air_monitoring['date_transform'] = datetime.now()
+
+#creating monitoring tables
+gold_monitoring=pd.concat([pd.DataFrame([date_monitoring]),
+pd.DataFrame([pollutant_monitoring]),
+pd.DataFrame([site_monitoring]),
+pd.DataFrame([sector_monitoring]),
+pd.DataFrame([fact_air_monitoring])])
 
 # #################################################
 # loading transformed table to postgresql server #
@@ -145,13 +189,7 @@ load_table(fact_emission_air, 'fact_emission_air','gold',engine=engine)
 ###################################################
 
 #monitoring silver
-log_monitoring(f1_4_monitoring_dict,"silver_monitoring", "monitoring", engine=engine)
-log_monitoring(f5_2_monitoring_dict,"silver_monitoring","monitoring",engine=engine)
-log_monitoring(f6_1_monitoring_dict,"silver_monitoring","monitoring",engine=engine)
+log_monitoring(silver_monitoring,"silver_monitoring", "monitoring", engine=engine)
 
 #monitoring gold
-log_monitoring(date_monitoring,'gold_monitoring','monitoring',engine=engine)
-log_monitoring(site_monitoring,'gold_monitoring','monitoring',engine=engine)
-log_monitoring(pollutant_monitoring,'gold_monitoring','monitoring',engine=engine)
-log_monitoring(sector_monitoring,'gold_monitoring','monitoring',engine=engine)
-log_monitoring(fact_air_monitoring, 'gold_monitoring','monitoring',engine=engine)
+log_monitoring(gold_monitoring,'gold_monitoring','monitoring',engine=engine)
