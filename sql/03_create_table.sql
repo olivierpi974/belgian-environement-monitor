@@ -107,6 +107,6 @@ CREATE TABLE IF NOT EXISTS gold.fact_emissions_air
 fk_eprtr_sectorcode INT REFERENCES gold.dim_sector (eprtr_sectorcode), 
 fk_site_id SMALLINT REFERENCES gold.dim_site (site_id),
 fk_pollutant_id SMALLINT REFERENCES gold.dim_pollutant (pollutant_id),
-emitted_pollutant_kg DOUBLE PRECISION, 
+emitted_pollutant_tons DOUBLE PRECISION, 
 PRIMARY KEY (year, fk_site_id, fk_pollutant_id)
 )
