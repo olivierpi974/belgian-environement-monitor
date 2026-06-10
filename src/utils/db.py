@@ -46,21 +46,21 @@ def get_table(query,engine):
 
     return df
 
-def load_table(df,table_name,schema,engine,truncate=True):
+def load_table(df,table_name,schema,engine,logger, truncate=True,if_exist="append"):
    
     if truncate==True: 
-            sql_state=text(f"TRUNCATE TABLE {schema}.{table_name};")
+            sql_state=text(f"TRUNCATE TABLE {schema}.{table_name} CASCADE;")
 
             with engine.connect()as conn:
                 conn.execute(sql_state)
                 conn.commit()
 
             
-    df.to_sql(table_name,con=engine,schema=schema, if_exists='append',index=False, chunksize=1000)
-    print( f"load of {schema}.{table_name} done")
+    df.to_sql(table_name,con=engine,schema=schema, if_exists=if_exist,index=False, chunksize=1000)
+    logger.info( f"succeeded to load  {schema}.{table_name}")
 
-def log_monitoring(df,table_name,schema, engine):
+def log_monitoring(df,table_name,schema, engine, logger, if_exist="append", truncate=False):
     
-    load_table(df,table_name,schema, engine,truncate=True)
+    load_table(df,table_name,schema, engine,logger, truncate=truncate, if_exist=if_exist)
 
-    print("monitoring is done")
+    logger.info(f"succeeded to add {table_name}monitoring table in database")
