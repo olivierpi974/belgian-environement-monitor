@@ -14,14 +14,14 @@ def connect_to_db():
     DB_USER=os.getenv('DB_USER')
     DB_PASSWORD=os.getenv('DB_PASSWORD')
     DATABASE=os.getenv('DATABASE')
-    HOST=os.getenv('HOST')
-    PORT=os.getenv('PORT')
+    DB_HOST=os.getenv('DB_HOST')
+    DB_PORT=os.getenv('DB_PORT')
 
     params={"User":DB_USER,
             "password":DB_PASSWORD,
             "database":DATABASE,
-            "host":HOST,
-            "port":PORT
+            "host":DB_HOST,
+            "port":DB_PORT
     }
 
     for key in params:
@@ -31,7 +31,7 @@ def connect_to_db():
     print("parameters of DATABASE sucessfuly loaded ")
 
     #instanciation of the engine
-    engine = create_engine(f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{HOST}:{PORT}/{DATABASE}')
+    engine = create_engine(f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DATABASE}')
 
     #test of connection
     with engine.connect() as conn:

@@ -135,7 +135,7 @@ def main():
        pd.DataFrame([f5_2_monitoring_dict]),
        pd.DataFrame([f6_1_monitoring_dict])])
        logger.info("Transformation of f6_1_installation done")
-       logger.info("Bronze layer step ended")
+       logger.info("Silver layer step ended")
        #######################
        # Gold_layer operation#
        #######################
@@ -226,12 +226,17 @@ def main():
 # #################################################
 # monitoring                                      #
 ###################################################      
+       
+       silver_monitoring['run_timestamp'] = pd.Timestamp.now()
+       gold_monitoring['run_timestamp'] = pd.Timestamp.now()
+
+#
        try:
               #monitoring silver
-              log_monitoring(silver_monitoring,"silver_monitoring", "monitoring", logger=logger,engine=engine, truncate=True, if_exist="append")
+              log_monitoring(silver_monitoring,"silver_monitoring", "monitoring", logger=logger,engine=engine, truncate=False, if_exist="append")
 
               #monitoring gold
-              log_monitoring(gold_monitoring,'gold_monitoring','monitoring',logger=logger,engine=engine, truncate=False,if_exist="replace")
+              log_monitoring(gold_monitoring,'gold_monitoring','monitoring',logger=logger,engine=engine, truncate=False,if_exist="append")
        except Exception as e: 
               logger.warning(f"failed to load monitoring table: {e}")
 

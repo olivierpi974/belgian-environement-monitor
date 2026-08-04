@@ -39,3 +39,4 @@ pgdata/
 #log & monitoring
 logs/
 *.log
+
