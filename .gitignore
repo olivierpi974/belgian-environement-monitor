@@ -40,3 +40,6 @@ pgdata/
 logs/
 *.log
 
+
+#local snapshots
+*_current.txt
