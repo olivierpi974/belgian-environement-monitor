@@ -7,6 +7,8 @@ from datetime import datetime
 from gold import create_dim_date,create_dim_pollutant,create_dim_sector,create_dim_site,create_fact_emission_air
 import pandas as pd
 from utils.logger import get_logger
+from config import load_config
+from bridge import build_installation_representative, build_lcp_representative
 
 #path to csv
 f1_path = "data/raw/F1_4_Air_Releases_Facilities.csv"
@@ -18,7 +20,7 @@ engine=connect_to_db()
 
 
 def main():
-
+       config=load_config() #charge les paramètres du fichierconfig.yaml
        logger=get_logger()
        #######################
        # BRONZE layer loading#
@@ -130,6 +132,17 @@ def main():
        f6_1_monitoring_dict['duration_sec'] = round(elapsed, 2)#monitoring
        f6_1_monitoring_dict['date_transform'] = datetime.now()#monitoring
 
+       #bridge
+
+       lcp_cols=config["bridge"]["lcp_columns"]
+       inst_cols=config["bridge"]['installation_columns']
+       lcp_rep = build_lcp_representative(f5_2_silver,lcp_cols).dropna(subset=["Latitude", "Longitude"]).reset_index(drop=True)
+       inst_rep = build_installation_representative(f6_1_silver,inst_cols).dropna(subset=["Latitude", "Longitude"]).reset_index(drop=True)
+       logger.info("LCP représentatifs :", len(lcp_rep))
+       logger.info("Installations représentatives :", len(inst_rep))
+       
+       ##### à continuer
+       
        #creating monitoring tables
        silver_monitoring=pd.concat([pd.DataFrame([f1_4_monitoring_dict]),
        pd.DataFrame([f5_2_monitoring_dict]),
