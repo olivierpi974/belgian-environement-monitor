@@ -1,0 +1,22 @@
+bridge:
+  lcp_columns:
+    id: LCPInspireId
+    name: installationPartName
+    city: City_Of_Facility
+    latitude: Latitude
+    longitude: Longitude
+    year: reportingYear
+    country: countryName
+
+  installation_columns:      # pour build_installation_representative, plus tard
+    id: InstallationInspireId
+    parent_id: parent_facilityInspireId
+    name: installationName
+    city: City_of_Facility
+    latitude: Latitude
+    longitude: Longitude
+    year: reportingYear
+    country: CountryName
+
+  top_k: 5
+  max_distance_km: 3.0
