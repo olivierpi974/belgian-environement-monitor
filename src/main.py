@@ -7,7 +7,7 @@ from datetime import datetime
 from gold import create_dim_date,create_dim_pollutant,create_dim_sector,create_dim_site,create_fact_emission_air
 import pandas as pd
 from utils.logger import get_logger
-from config import load_config
+from utils.config import load_config
 from bridge import build_installation_representative, build_lcp_representative
 
 #path to csv
@@ -138,8 +138,8 @@ def main():
        inst_cols=config["bridge"]['installation_columns']
        lcp_rep = build_lcp_representative(f5_2_silver,lcp_cols).dropna(subset=["Latitude", "Longitude"]).reset_index(drop=True)
        inst_rep = build_installation_representative(f6_1_silver,inst_cols).dropna(subset=["Latitude", "Longitude"]).reset_index(drop=True)
-       logger.info("LCP représentatifs :", len(lcp_rep))
-       logger.info("Installations représentatives :", len(inst_rep))
+       logger.info(f"LCP représentatifs : {len(lcp_rep)}")
+       logger.info(f"Installations représentatives : {len(inst_rep)}")
        
        ##### à continuer
        
