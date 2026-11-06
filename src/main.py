@@ -8,8 +8,7 @@ from gold import create_dim_date,create_dim_pollutant,create_dim_sector,create_d
 import pandas as pd
 from utils.logger import get_logger
 from utils.config import load_config
-from bridge import build_installation_representative, build_lcp_representative
-
+from bridge import build_bridge_lcp_installation
 #path to csv
 f1_path = "data/raw/F1_4_Air_Releases_Facilities.csv"
 f5_path = "data/raw/F5_2_LCP_Energy_Emissions.csv"
@@ -134,15 +133,11 @@ def main():
 
        #bridge
 
-       lcp_cols=config["bridge"]["lcp_columns"]
-       inst_cols=config["bridge"]['installation_columns']
-       lcp_rep = build_lcp_representative(f5_2_silver,lcp_cols).dropna(subset=["Latitude", "Longitude"]).reset_index(drop=True)
-       inst_rep = build_installation_representative(f6_1_silver,inst_cols).dropna(subset=["Latitude", "Longitude"]).reset_index(drop=True)
-       logger.info(f"LCP représentatifs : {len(lcp_rep)}")
-       logger.info(f"Installations représentatives : {len(inst_rep)}")
-       
-       ##### à continuer
-       
+      
+       bridge_best = build_bridge_lcp_installation(f5_2_silver, f6_1_silver, config["bridge"])
+       logger.info(f"Bridge LCP ↔ installation : {len(bridge_best)} correspondances")
+
+
        #creating monitoring tables
        silver_monitoring=pd.concat([pd.DataFrame([f1_4_monitoring_dict]),
        pd.DataFrame([f5_2_monitoring_dict]),
@@ -247,8 +242,6 @@ def main():
        try:
               log_monitoring(silver_monitoring,"silver_monitoring", "monitoring", logger=logger,engine=engine, truncate=False, if_exist="append")
 
-              
-              log_monitoring(gold_monitoring,'gold_monitoring','monitoring',logger=logger,engine=engine, truncate=False,if_exist="append")
        except Exception as e: 
               logger.warning(f"failed to load monitoring table: {e}")
 
