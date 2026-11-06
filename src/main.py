@@ -230,14 +230,19 @@ def main():
        silver_monitoring['run_timestamp'] = pd.Timestamp.now()
        gold_monitoring['run_timestamp'] = pd.Timestamp.now()
 
-#
+       #monitoring silver
        try:
-              #monitoring silver
               log_monitoring(silver_monitoring,"silver_monitoring", "monitoring", logger=logger,engine=engine, truncate=False, if_exist="append")
 
-              #monitoring gold
+              
               log_monitoring(gold_monitoring,'gold_monitoring','monitoring',logger=logger,engine=engine, truncate=False,if_exist="append")
        except Exception as e: 
+              logger.warning(f"failed to load monitoring table: {e}")
+
+       #monitoring gold
+       try:
+              log_monitoring(gold_monitoring,'gold_monitoring','monitoring',logger=logger,engine=engine, truncate=False,if_exist="append")
+       except Exception as e:
               logger.warning(f"failed to load monitoring table: {e}")
 
        logger.info("pipeline done")

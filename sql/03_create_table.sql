@@ -18,7 +18,8 @@ nb_null_in INT,
 nb_null_out INT,
 nb_col_out INT, 
 duration_sec NUMERIC (6,2),
-date_transform TIMESTAMP);
+date_transform TIMESTAMP,
+run_timestamp TIMESTAMP);
 
 CREATE TABLE IF NOT EXISTS silver.f5_energy
 (reportingyear INT,
@@ -109,4 +110,16 @@ fk_site_id SMALLINT REFERENCES gold.dim_site (site_id),
 fk_pollutant_id SMALLINT REFERENCES gold.dim_pollutant (pollutant_id),
 emitted_pollutant_tons DOUBLE PRECISION, 
 PRIMARY KEY (year, fk_site_id, fk_pollutant_id)
-)
+);
+CREATE TABLE IF NOT EXISTS monitoring.gold_monitoring
+(table_name VARCHAR(50),
+nb_rows_out INT,
+duration_sec NUMERIC (6,2),
+date_transform TIMESTAMP,
+nb_duplicates INT,
+nb_null INT,
+nb_year_null INT,
+nb_sector_null INT,
+nb_site_null INT,
+nb_pollutant_null INT,
+run_timestamp TIMESTAMP);
