@@ -132,16 +132,16 @@ def main():
        f6_1_monitoring_dict['date_transform'] = datetime.now()#monitoring
 
        #bridge
-
       
-       bridge_best = build_bridge_lcp_installation(f5_2_silver, f6_1_silver, config["bridge"])
+       bridge_best,bridge_monitoring_dic = build_bridge_lcp_installation(f5_2_silver, f6_1_silver, config["bridge"])
        logger.info(f"Bridge LCP ↔ installation : {len(bridge_best)} correspondances")
 
 
        #creating monitoring tables
        silver_monitoring=pd.concat([pd.DataFrame([f1_4_monitoring_dict]),
        pd.DataFrame([f5_2_monitoring_dict]),
-       pd.DataFrame([f6_1_monitoring_dict])])
+       pd.DataFrame([f6_1_monitoring_dict]),
+       pd.DataFrame([bridge_monitoring_dic])])
        logger.info("Transformation of f6_1_installation done")
        logger.info("Silver layer step ended")
        #######################
@@ -220,6 +220,7 @@ def main():
        load_table(f1_4_emission,table_name="f1_emission", schema="silver",logger=logger,engine=engine)
        load_table(f5_2_energy_emission,"f5_energy",schema="silver",logger=logger,engine=engine)
        load_table(f6_1_installation,"f6_installation",schema="silver",logger=logger,engine=engine)
+       load_table(bridge_best,"bridge_lcp_installation",schema="silver",logger=logger,engine=engine)
 
        #loading table in gold layer SQL 
        try: 

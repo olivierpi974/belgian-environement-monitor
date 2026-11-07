@@ -3,14 +3,16 @@ import pandas as pd
 import numpy as np
 from sklearn.neighbors import BallTree
 from rapidfuzz.fuzz import token_set_ratio
+import time
+from datetime import datetime
 
 def prepare_balltree(df_points):
-    # Index spatial haversine sur (Latitude, Longitude) converties en radians
+    """Index spatial haversine sur (Latitude, Longitude) converties en radians"""
     coords = np.deg2rad(df_points[["Latitude", "Longitude"]].to_numpy())
     return BallTree(coords, metric="haversine")
 
 def candidate_from_lcp_id(lcp_id):
-    # Heuristique : LCPInspireId se terminant par .PART → remplace par .INSTALLATION
+    """ Heuristique : LCPInspireId se terminant par .PART → remplace par .INSTALLATION """
     if pd.isna(lcp_id):
         return None
     s = str(lcp_id)
@@ -172,7 +174,7 @@ def select_best_match(candidate,confidence_bins,min_score_gap):
         .reset_index(drop=True))
 
 def build_bridge_lcp_installation(df_5,df_6,bridge_config):
-    
+    start=time.perf_counter()
     lcp_rep=(
         build_lcp_representative(df_5,bridge_config["lcp_columns"])
         .dropna(subset=["Latitude", "Longitude"])
@@ -195,5 +197,18 @@ def build_bridge_lcp_installation(df_5,df_6,bridge_config):
         confidence_bins=bridge_config['confidence_bins'],
         min_score_gap=bridge_config['min_score_gap'])
     
-    return best_bridge
+    best_bridge=best_bridge.rename(str.lower,axis="columns")
+
+    monitoring_dic={
+        'table_name':'silver_bridge_lcp_installation',
+        'nb_rows_out':len(best_bridge),
+        'nb_null_in':df_5.isnull().sum().sum() +df_6.isnull().sum().sum(),
+        'nb_null_out':best_bridge.isnull().sum().sum(),
+        'nb_col_out':len(best_bridge.columns),
+        'bridge_manual_verification':int(best_bridge['manual_review_required'].sum()),
+        'duration_sec':round(time.perf_counter()-start,2),
+        'date_transform':datetime.now()
+    }
+    
+    return best_bridge,monitoring_dic
 

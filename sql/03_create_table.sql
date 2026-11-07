@@ -18,6 +18,7 @@ nb_null_in INT,
 nb_null_out INT,
 nb_col_out INT, 
 duration_sec NUMERIC (6,2),
+bridge_manual_verification INT,
 date_transform TIMESTAMP,
 run_timestamp TIMESTAMP);
 
@@ -123,3 +124,5 @@ nb_sector_null INT,
 nb_site_null INT,
 nb_pollutant_null INT,
 run_timestamp TIMESTAMP);
+
+
